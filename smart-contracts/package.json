@@ -3,11 +3,16 @@
   "version": "1.1.0",
   "description": "This is a stack of smart contract for the rail road project.",
   "scripts": {
-    "test": "hardhat test"
+    "test": "hardhat test",
+    "compile": "hardhat compile"
   },
   "author": "Sylla Hadramet",
   "license": "MIT",
   "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.0",
     "hardhat": "^2.12.2"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.8.0"
   }
 }
