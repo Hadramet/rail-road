@@ -5,6 +5,8 @@
 /.pnp
 .pnp.js
 
+contracts
+!smart-contracts/contracts
 # testing
 /coverage
 
