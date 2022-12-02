@@ -14,15 +14,18 @@
     "@emotion/server": "latest",
     "@emotion/styled": "latest",
     "@mui/icons-material": "latest",
+    "@mui/lab": "^5.0.0-alpha.110",
     "@mui/material": "latest",
     "@next/font": "latest",
     "@types/react-dom": "latest",
     "connectkit": "^1.1.0",
     "ethers": "^5.7.2",
+    "formik": "^2.2.9",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "wagmi": "latest"
+    "wagmi": "latest",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "@types/node": "latest",
