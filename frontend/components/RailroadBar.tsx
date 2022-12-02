@@ -1,6 +1,6 @@
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
-import { Box,  Toolbar, Typography } from "@mui/material";
+import { Box, Toolbar, Typography } from "@mui/material";
 import { ConnectKitButton } from "connectkit";
 
 export function RailroadBar() {
