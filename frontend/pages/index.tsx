@@ -1,69 +1,76 @@
-import { Box, Typography, Alert } from "@mui/material";
-import { useState } from "react";
-import { Container } from "@mui/system";
 import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  CardActions,
+  Button,
+} from "@mui/material";
+import { Container } from "@mui/system";
+import { AddCardView } from "../components/AddCardView";
+import { useContractRead, useAccount, useContract } from "wagmi";
 
 import RailroadArtifact from "../contracts/Railroad.json";
 import contractAddress from "../contracts/contract-address.json";
-import { useDebounce } from "../utils/useDebounce";
-import { AddCardFormValues } from "../interfaces/AddCardFormValues";
-import { AddCardForm } from "../components/AddCardForm";
+import { BigNumber } from "ethers";
+import { useEffect } from "react";
 
-export default function Home() {
-  const [values, setValues] = useState<AddCardFormValues>();
-  const debouncedValues = useDebounce(values, 500);
 
-  const {
-    config,
-    error: prepareError,
-    isError: isPrepareError,
-  } = usePrepareContractWrite({
+interface CardInfos {
+  price: number;
+  discount: number;
+  available: number;
+  sold : number;
+  totalSellable: number;
+  uri: string;
+}
+
+function RailroadCardItem(cardId: string | any ) {
+  let infos: CardInfos;
+  const { data, isError, isLoading } = useContractRead({
     address: contractAddress.Railroad,
     abi: RailroadArtifact.abi,
-    functionName: "addCard",
-    args: [
-      debouncedValues?.cardId,
-      debouncedValues?.cardPrice,
-      debouncedValues?.cardDiscount,
-      debouncedValues?.cardTotalSellable,
-    ],
+    functionName: "getInfos",
+    args: [parseInt(cardId?.cardId)],
+    onSettled: (data, error) => {
+      if(error) console.log(error);
+      if(data !== undefined) console.log(data);
+    }
   });
+  return <>{!isError && <div>😒</div>}</>;
+}
 
-  const { data, error, isError, write } = useContractWrite(config);
-  const { isLoading, isSuccess } = useWaitForTransaction({
-    hash: data?.hash,
+export default function Home() {
+  const { data, isError, isLoading } = useContractRead({
+    address: contractAddress.Railroad,
+    abi: RailroadArtifact.abi,
+    functionName: "getAllCardIds",
   });
-
-  const onAddCardSubmit = (values: AddCardFormValues) => {
-    setValues(values);
-    write?.();
-  };
 
   return (
     <Container maxWidth="md">
       <Box component="main" sx={{ flexGrow: 1, py: 8 }}>
-        {isPrepareError && (
-          <Box sx={{ mt: 2, mb: 3 }}>
-            <Alert severity="error">
-              <Typography variant="caption">
-                <div>{prepareError?.message}</div>
-              </Typography>
-            </Alert>
-          </Box>
-        )}
-        <AddCardForm
-          error={error}
-          isError={isError}
-          hash={data?.hash}
-          isLoading={isLoading}
-          isSuccess={isSuccess}
-          addCardHandle={onAddCardSubmit}
-        />
+        <AddCardView />
+        <Typography component="div" variant="h4">
+          {" "}
+          Card List{" "}
+        </Typography>
+        <Box sx={{ display: "flex", mt: 2 }}>
+          
+          {!isError && (
+            <div>
+              {Array.isArray(data) &&
+                data.map((item) => (
+                  <RailroadCardItem
+                    key={item.toString()}
+                    cardId={item.toString()}
+                  />
+                ))}
+            </div>
+          )}
+        </Box>
       </Box>
     </Container>
+    
   );
 }
