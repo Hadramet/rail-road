@@ -5,7 +5,7 @@
   "scripts": {
     "test": "hardhat test",
     "deploy": "hardhat run scripts/deploy.js",
-    "deploy_local":"hardhat run scripts/deploy.js --network localhost",
+    "deploy_local": "hardhat run scripts/deploy.js --network localhost",
     "compile": "hardhat compile"
   },
   "author": "Sylla Hadramet",
