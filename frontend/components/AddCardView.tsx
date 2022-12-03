@@ -3,6 +3,8 @@ import { useState } from "react";
 import {
   usePrepareContractWrite,
   useContractWrite,
+  useAccount,
+  useContractRead,
   useWaitForTransaction,
 } from "wagmi";
 import RailroadArtifact from "../contracts/Railroad.json";
@@ -14,6 +16,7 @@ import { AddCardForm } from "./AddCardForm";
 export function AddCardView() {
   const [values, setValues] = useState<AddCardFormValues>();
   const debouncedValues = useDebounce(values, 500);
+  const { address} = useAccount();
 
   const {
     config,
@@ -30,6 +33,11 @@ export function AddCardView() {
       debouncedValues?.cardTotalSellable,
     ],
   });
+  const { data: owner, isError: ownerError, isLoading: ownerLoading } = useContractRead({
+    address: contractAddress.Railroad,
+    abi: RailroadArtifact.abi,
+    functionName: "owner"
+  })
 
   const { data, error, isError, write } = useContractWrite(config);
   const { isLoading, isSuccess } = useWaitForTransaction({
@@ -41,6 +49,8 @@ export function AddCardView() {
     write?.();
   };
 
+  if(ownerLoading) return <div>Loading ...</div>
+  if(owner !== address) return null;
   return (
     <Box>
       {isPrepareError && (
