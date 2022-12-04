@@ -24,12 +24,10 @@ export default function Home() {
   }, [address, owner]);
 
   return (
-    <AppLayout>
       <Container maxWidth="md">
         <Box component="main" sx={{ flexGrow: 1, py: 8 }}>
           {isOwner && <AddCardView />}
         </Box>
       </Container>
-    </AppLayout>
   );
 }

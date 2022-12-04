@@ -10,6 +10,7 @@ import { ConnectKitProvider, getDefaultClient } from "connectkit";
 import toast, { Toaster } from "react-hot-toast";
 import RailroadArtifact from "../contracts/Railroad.json";
 import contractAddress from "../contracts/contract-address.json";
+import { AppLayout } from "../components/AppLayout";
 
 const clientSideEmotionCache = createEmotionCache();
 const chains = [chain.localhost, chain.hardhat, chain.goerli]; //more chain here
@@ -48,7 +49,9 @@ export default function App(props: RailroadProps) {
           <ThemeProvider theme={theme}>
             <CssBaseline />
             <Toaster position="top-center" />
-            <Component {...pageProps} />
+            <AppLayout>
+              <Component {...pageProps} />
+            </AppLayout>
           </ThemeProvider>
         </CacheProvider>
       </ConnectKitProvider>

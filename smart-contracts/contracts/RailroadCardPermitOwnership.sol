@@ -97,6 +97,11 @@ contract RailroadCardPermitOwnership is
         return _tokenForSalePrice[_tokenId];
     }
 
+    function isTokenForSale(uint256 _tokenId) public view returns(bool) {
+        require(_exists(_tokenId));
+        return _isTokenForSale(_tokenId);
+    }
+
     function removeTokenForSale(uint256 _tokenId) public onlyOwnerOf(_tokenId) {
         require(_exists(_tokenId));
         require(_isTokenForSale(_tokenId));
