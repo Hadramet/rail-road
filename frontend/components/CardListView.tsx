@@ -1,8 +1,4 @@
-import {
-  Box,
-  Typography,
-  Grid
-} from "@mui/material";
+import { Box, Typography, Grid } from "@mui/material";
 import { useContractRead } from "wagmi";
 import RailroadArtifact from "../contracts/Railroad.json";
 import contractAddress from "../contracts/contract-address.json";
@@ -10,41 +6,35 @@ import { useEffect, useState } from "react";
 import { RailroadCardItem } from "./RailroadCardItem";
 
 export function CardListView() {
-  const [cardData, setData] = useState<any>();
-  const { data, isError, isLoading } = useContractRead({
+  const [cards, setCards] = useState<number[]>([]);
+  const { data } = useContractRead({
     address: contractAddress.Railroad,
     abi: RailroadArtifact.abi,
     functionName: "getAllCardIds",
     watch: true,
   });
 
+  function updateCards(data: Array<any>): void {
+    let cardIds: number[] = [];
+    data.forEach((element) => {
+      cardIds.push(parseInt(element.toString()));
+    });
+    setCards(cardIds);
+  }
+
   useEffect(() => {
-    if (data !== undefined)
-      setData(data);
+    if (data !== undefined && Array.isArray(data)) {
+      updateCards(data);
+    }
   }, [data]);
 
-  if (isLoading)
-    return <div>Loading ...</div>;
   return (
     <Box>
-      <Typography component="div" variant="h4">
-        {" "}
-        Card List{" "}
-      </Typography>
-      <Grid
-        container
-        spacing={2}
-        direction="row"
-        justify="flex-start"
-        alignItems="flex-start"
-      >
-        {!isError &&
-          Array.isArray(cardData) &&
-          cardData.map((item) => (
-            <Grid item xs={3} key={cardData.indexOf(item)}>
-              <RailroadCardItem cardId={item.toString()} />
-            </Grid>
-          ))}
+      <Typography variant="h4">Card List </Typography>
+      <Grid container spacing={1}>
+        {cards &&
+          Array.isArray(cards) &&
+          cards.map((item, index) => <RailroadCardItem key={index} cardId={item} />)}
       </Grid>
     </Box>
   );

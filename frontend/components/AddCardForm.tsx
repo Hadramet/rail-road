@@ -56,7 +56,6 @@ const AddCardFormView = (
         <CardContent>
           <Grid container spacing={3}>
             <Grid item md={4} xs={12}>
-              {" "}
               <Typography variant="h6"> Add Card </Typography>
             </Grid>
             <Grid item md={8} xs={12}>

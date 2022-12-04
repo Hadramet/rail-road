@@ -8,6 +8,7 @@ import { CssBaseline } from "@mui/material";
 import { createClient, WagmiConfig, chain } from "wagmi";
 import { ConnectKitProvider, getDefaultClient } from "connectkit";
 import { RailroadBar } from "../components/RailroadBar";
+import { Toaster } from "react-hot-toast";
 
 const clientSideEmotionCache = createEmotionCache();
 const chains = [chain.localhost, chain.hardhat, chain.goerli]; //more chain here
@@ -36,6 +37,7 @@ export default function App(props: RailroadProps) {
           </Head>
           <ThemeProvider theme={theme}>
             <CssBaseline />
+            <Toaster position="top-center" />
             <RailroadBar />
             <Component {...pageProps} />
           </ThemeProvider>

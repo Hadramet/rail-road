@@ -16,13 +16,8 @@ import { AddCardForm } from "./AddCardForm";
 export function AddCardView() {
   const [values, setValues] = useState<AddCardFormValues>();
   const debouncedValues = useDebounce(values, 500);
-  const { address} = useAccount();
 
-  const {
-    config,
-    error: prepareError,
-    isError: isPrepareError,
-  } = usePrepareContractWrite({
+  const { config } = usePrepareContractWrite({
     address: contractAddress.Railroad,
     abi: RailroadArtifact.abi,
     functionName: "addCard",
@@ -33,11 +28,6 @@ export function AddCardView() {
       debouncedValues?.cardTotalSellable,
     ],
   });
-  const { data: owner, isError: ownerError, isLoading: ownerLoading } = useContractRead({
-    address: contractAddress.Railroad,
-    abi: RailroadArtifact.abi,
-    functionName: "owner"
-  })
 
   const { data, error, isError, write } = useContractWrite(config);
   const { isLoading, isSuccess } = useWaitForTransaction({
@@ -49,27 +39,14 @@ export function AddCardView() {
     write?.();
   };
 
-  if(ownerLoading) return <div>Loading ...</div>
-  if(owner !== address) return null;
   return (
-    <Box>
-      {isPrepareError && (
-        <Box sx={{ mt: 2, mb: 3 }}>
-          <Alert severity="error">
-            <Typography variant="caption">
-              <div>{prepareError?.message}</div>
-            </Typography>
-          </Alert>
-        </Box>
-      )}
-      <AddCardForm
-        error={error}
-        isError={isError}
-        hash={data?.hash}
-        isLoading={isLoading}
-        isSuccess={isSuccess}
-        addCardHandle={onAddCardSubmit}
-      />
-    </Box>
+    <AddCardForm
+      error={error}
+      isError={isError}
+      hash={data?.hash}
+      isLoading={isLoading}
+      isSuccess={isSuccess}
+      addCardHandle={onAddCardSubmit}
+    />
   );
 }
