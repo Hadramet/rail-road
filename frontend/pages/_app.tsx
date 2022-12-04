@@ -5,10 +5,11 @@ import theme from "../src/theme";
 import { CacheProvider, ThemeProvider } from "@emotion/react";
 import Head from "next/head";
 import { CssBaseline } from "@mui/material";
-import { createClient, WagmiConfig, chain } from "wagmi";
+import { createClient, WagmiConfig, chain, useContractEvent } from "wagmi";
 import { ConnectKitProvider, getDefaultClient } from "connectkit";
-import { RailroadBar } from "../components/RailroadBar";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
+import RailroadArtifact from "../contracts/Railroad.json";
+import contractAddress from "../contracts/contract-address.json";
 
 const clientSideEmotionCache = createEmotionCache();
 const chains = [chain.localhost, chain.hardhat, chain.goerli]; //more chain here
@@ -25,6 +26,15 @@ interface RailroadProps extends AppProps {
 
 export default function App(props: RailroadProps) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
+  useContractEvent({
+    address: contractAddress.Railroad,
+    abi: RailroadArtifact.abi,
+    eventName: "Transfer",
+    once: true,
+    listener(from, to, tokenId) {
+      toast.success(`Successfuly transferd`);
+    },
+  });
   return (
     <WagmiConfig client={client}>
       <ConnectKitProvider>
@@ -38,7 +48,6 @@ export default function App(props: RailroadProps) {
           <ThemeProvider theme={theme}>
             <CssBaseline />
             <Toaster position="top-center" />
-            <RailroadBar />
             <Component {...pageProps} />
           </ThemeProvider>
         </CacheProvider>

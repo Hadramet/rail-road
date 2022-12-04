@@ -8,7 +8,6 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
 interface IRailroadMaketPlace is IERC721 {
     function removeTokenAfterSale(uint256 _tokenId) external;
-
     function updatePermitOwner(uint256 _permitId, address owner) external;
 }
 

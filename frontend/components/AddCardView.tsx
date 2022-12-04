@@ -1,10 +1,7 @@
-import { Box, Typography, Alert } from "@mui/material";
 import { useState } from "react";
 import {
   usePrepareContractWrite,
   useContractWrite,
-  useAccount,
-  useContractRead,
   useWaitForTransaction,
 } from "wagmi";
 import RailroadArtifact from "../contracts/Railroad.json";

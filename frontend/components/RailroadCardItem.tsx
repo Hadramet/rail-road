@@ -98,9 +98,7 @@ export function RailroadCardItem(props: ItemProps) {
           <Typography variant="caption">
             {`Total : ${infos?.totalSellable}`}
           </Typography>
-
-          <Divider light />
-
+          <Divider light sx={{ m: 2}} />
           <LoadingButton
             loading={isBuyingLoading}
             disabled={isBuyingLoading || infos?.available == 0}
