@@ -5,6 +5,7 @@
   "scripts": {
     "test": "hardhat test",
     "deploy": "hardhat run scripts/deploy.js",
+    "coverage":"hardhat coverage",
     "deploy_local": "hardhat run scripts/deploy.js --network localhost",
     "compile": "hardhat compile"
   },
