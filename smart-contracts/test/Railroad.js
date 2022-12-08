@@ -8,7 +8,6 @@ describe("Railroad contract", () => {
   const deployFixture = async () => {
     const Railroad = await ethers.getContractFactory("Railroad");
     const [owner, addr1, addr2] = await ethers.getSigners();
-
     const hardhatRailroad = await Railroad.deploy();
     await hardhatRailroad.deployed();
     return { Railroad, hardhatRailroad, owner, addr1, addr2 };

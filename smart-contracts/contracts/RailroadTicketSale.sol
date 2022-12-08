@@ -1,43 +1,33 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.5.0;
+pragma solidity ^0.8.9;
 
-struct Ticket {
-    uint ticketId;
-    string ticketType;
-    uint ticketPrice;
-}
+/**
+ * @title RailRoadTicket
+ * @dev This contract allows anyone to purchase a railroad ticket.
+ * @notice It maintains a mapping of the purchased tickets, indexed by the buyer's address.
+ * @notice It also has two internal functions to purchase a ticket with or without a discount.
+ * @notice The contract emits a TicketSold event upon a successful purchase.
+*/
+contract RailRoadTicket {
+    uint256 counter = 0;
+    uint256 constant ticketPrice = 5000;
 
-contract RailroadTicketSale   {
+    mapping(address => uint256[]) public purchasedTickets;
 
+    event TicketSold(address indexed buyer, uint256 ticketId, uint256 discount);
 
-    Ticket[] public availableTickets;
-    mapping(address => Ticket[]) public purchasedTickets;
-
-    function addTicketCall(
-        uint _ticketId,
-        string memory _ticketType,
-        uint _ticketPrice
-    ) public  {
-        availableTickets.push(Ticket(_ticketId, _ticketType, _ticketPrice));
+    function purchaseTicketWithDiscount(uint256 discount) internal {
+        counter++;
+        purchasedTickets[msg.sender].push(counter);
+        uint256 soldPrice = (ticketPrice * discount) / 100;
+        // Transfert funds
+        emit TicketSold(msg.sender, counter, soldPrice);
     }
 
-    function purchaseTicketCall(uint _ticketId) public payable {
-        require(
-            _ticketId <= availableTickets.length,
-            "This ticket is not available for purchase."
-        );
-
-        Ticket memory selectedTicket = availableTickets[_ticketId];
-
-        require(
-            msg.value >= selectedTicket.ticketPrice,
-            "You do not have enough ether to purchase this ticket."
-        );
-
-        purchasedTickets[msg.sender].push(selectedTicket);
-    }
-
-    function viewPurchasedTickets() public view returns(Ticket[] memory) {
-        return purchasedTickets[msg.sender];
+    function purchasedTicketsWithoutDiscount() internal {
+        counter++;
+        purchasedTickets[msg.sender].push(counter);
+        // Transfert funds
+        emit TicketSold(msg.sender, counter, ticketPrice);
     }
 }

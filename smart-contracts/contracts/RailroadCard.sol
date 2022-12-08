@@ -4,7 +4,13 @@ pragma solidity ^0.8.9;
 import "./RailroadBase.sol";
 import {RailRoadRessources as Res} from "./RailroadLib.sol";
 
+/**
+ * @title RailroadCard
+ * @author RailroadCard is a contract for managing and selling cards.
+ * @notice This contract allows the owner to add, update, and view information about cards.
+ */
 contract RailroadCard is RailroadBase {
+    // Struct for storing card information
     struct Card {
         uint256 id;
         uint256 price;
@@ -14,23 +20,44 @@ contract RailroadCard is RailroadBase {
         uint256 totalSellable; //immutable
         string uri;
     }
-
+    // Array of card ids
     uint256[] private allCardIds;
+
+    // Mapping of card ids to card information
     mapping(uint256 => Card) private cards;
 
+    /**
+     *
+     * @dev Emitted Stranger than Fiction with the card's id, price, discount, and total sellable quantity when a new card is added.
+     * @param id The id of the card.
+     * @param price The price of the card.
+     * @param discount The discount of the card.
+     * @param totalSellable The total sellable quantity of the card.
+     */
     event NewCard(
         uint256 id,
         uint256 price,
         uint256 discount,
         uint256 totalSellable
     );
+    /**
+     * @dev Emitted when the stock of a card is updated.
+     * @param id The id of the card.
+     * @param available The available stock of the card.
+     */
     event CardStockUpdated(uint256 id, uint256 available);
+    /**
+     * @dev Emitted when the price of a card is updated.
+     * @param id The id of the card.
+     * @param newPrice The new price of the card.
+     */
     event CardPriceUpdated(uint256 id, uint256 newPrice);
+    /**
+     * @dev Emitted when the URI of a card is updated.
+     * @param id The id of the card.
+     * @param uri The new URI of the card.
+     */
     event CardUriUpdated(uint256 id, string uri);
-
-    // ********************************************************************
-    //  EXTERNAL
-    // ********************************************************************
 
     // Get all card id
     function getAllCardIds() external view returns (uint256[] memory) {

@@ -3,6 +3,11 @@ pragma solidity ^0.8.9;
 
 import "./RailroadCard.sol";
 
+/**
+ * @title RailroadCardPermit
+ * @author This contract represents a permit for a Railroad card.
+ * @notice It allows users to purchase permits and view their infos.
+ */
 contract RailroadCardPermit is RailroadCard {
     struct Permit {
         uint256 cardId;
@@ -10,6 +15,14 @@ contract RailroadCardPermit is RailroadCard {
         address owner;
     }
 
+    /**
+     * @dev Emitted when a permit is purchased.
+     * @param owner The owner of the permit.
+     * @param purchaser The purchaser of the permit.
+     * @param permitId The id of the permit.
+     * @param cardId The id of the card.
+     * @param issuedTime The time when the permit was issued.
+     */
     event PermitPurchased(
         address indexed owner,
         address indexed purchaser,
@@ -18,9 +31,7 @@ contract RailroadCardPermit is RailroadCard {
         uint256 issuedTime
     );
 
-    /// @dev For now we are using the lenght of this tab
-    /// as token id for the permit.
-    /// @dev can use more advance structure for storing permits
+    /// @dev For now we are using the lenght of this tabas token id for the permit.
     Permit[] permits;
 
     modifier onlyOwnerOf(uint256 _tokenId) {
@@ -28,16 +39,20 @@ contract RailroadCardPermit is RailroadCard {
         _;
     }
 
-    // ********************************************************************
-    //  EXTERNAL
-    // ********************************************************************
-
-    // permit owner
+    /**
+     * @dev Returns the owner of a permit.
+     * @param _tokenId The id of the permit.
+     * @return The owner of the permit.
+     */
     function premitOwner(uint256 _tokenId) external view returns (address) {
         return _permitOwner(_tokenId);
     }
 
-    // permit infos
+    /**
+     * @dev Returns the card id, issued time, and owner of the permit.
+     * @param _tokenId The id of the permit.
+     * @return The card id, issued time, and owner of the permit.
+     */
     function permitInfos(
         uint256 _tokenId
     ) external view returns (uint256, uint256, address) {
@@ -48,6 +63,13 @@ contract RailroadCardPermit is RailroadCard {
         );
     }
 
+    /**
+     * @dev This function adds a new permit to the contract.
+     * Only the owner of the contract can add permits.
+     * @param _cardId The id of the card that the permit is associated with.
+     * @param _to The address of the owner of the permit.
+     * @return The id of the new permit.
+     */
     function addPermit(
         uint256 _cardId,
         address _to
