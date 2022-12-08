@@ -3,6 +3,10 @@
 
 This project consists of two parts: a smart contract folder and a frontend folder.
 
+## Prerequisis
+- NodeJs : 18.2
+- Yarn : for the commands
+
 ## Smart contract
 
 The smart contract folder contains all the contracts for the app. In order to use it, you need to have [Node.js 18](https://nodejs.org/en/download/) installed on your system. We recommend using [nvm](https://github.com/nvm-sh/nvm) to manage your Node versions.
@@ -12,7 +16,7 @@ Once you have Node.js 18 installed, run the following command to init a local ha
 In the terminal, go to the smart contract folder from the root:
 
 ```
-cd smart-
+cd smart-contra
 npx hardhat node
 ```
 
