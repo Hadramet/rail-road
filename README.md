@@ -16,8 +16,8 @@ Once you have Node.js 18 installed, run the following command to init a local ha
 In the terminal, go to the smart contract folder from the root:
 
 ```
-cd smart-contra
-cd yarn && npx hardhat node
+cd smart-contracts
+yarn && npx hardhat node
 ```
 
 This will start the local network on **'127.0.0.1:8545'**.
