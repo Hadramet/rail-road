@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
 interface IRailroadMaketPlace is IERC721 {
     function removeTokenAfterSale(uint256 _tokenId) external;
+
     function updatePermitOwner(uint256 _permitId, address owner) external;
 }
 
@@ -97,7 +98,7 @@ contract RailroadCardPermitOwnership is
         return _tokenForSalePrice[_tokenId];
     }
 
-    function isTokenForSale(uint256 _tokenId) public view returns(bool) {
+    function isTokenForSale(uint256 _tokenId) public view returns (bool) {
         require(_exists(_tokenId));
         return _isTokenForSale(_tokenId);
     }

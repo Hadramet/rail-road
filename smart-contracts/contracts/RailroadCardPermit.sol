@@ -52,7 +52,7 @@ contract RailroadCardPermit is RailroadCard {
         uint256 _cardId,
         address _to
     ) external onlyOwner returns (uint256) {
-       return _addPermit(_cardId, _to);
+        return _addPermit(_cardId, _to);
     }
 
     // ********************************************************************

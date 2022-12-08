@@ -14,4 +14,5 @@ library RailRoadRessources {
     string constant invalid_token_owner = "Invalid owner";
     string constant invalid_permit = "Permit id not valid";
     string constant receiver_not_erc721 = "Receiver does not implement ERC721";
+    string constant invalid_ticket = "This ticket is not available for purchase.";
 }

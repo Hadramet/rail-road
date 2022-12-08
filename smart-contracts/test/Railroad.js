@@ -186,8 +186,8 @@ describe("Railroad contract", () => {
       await hardhatRailroad.connect(addr1).setForSale(0, 60000);
 
       const price = await hardhatRailroad.connect(addr2).getTokenSalePrice(0);
-      await hardhatRailroad.connect(addr2).buyPermitToken(0,{ value: price });
-      
+      await hardhatRailroad.connect(addr2).buyPermitToken(0, { value: price });
+
       await expect(
         hardhatRailroad.connect(addr2).getTokenSalePrice(0)
       ).to.be.revertedWith("Token not for sale");
@@ -196,6 +196,25 @@ describe("Railroad contract", () => {
       expect(permitInfos[0]).to.eq(1111);
       expect(permitInfos[2]).to.eq(addr2.address);
     });
+  });
+
+  describe("Ticket selling", () => {
     
+    it("Purchase ticket require valid ticket", async () => {
+      const { hardhatRailroad, addr1 } = await loadFixture(deployFixture);
+      await expect(
+        hardhatRailroad.connect(addr1).purchaseTicket({ value: 50000 })
+      ).to.emit(hardhatRailroad, "TicketSold");
+    });
+
+    it("Purchase ticket with a card", async () => {
+      const { hardhatRailroad, addr1 } = await loadFixture(deployFixture);     
+      await hardhatRailroad.addCard(1111, 50000, 50, 1);
+      await hardhatRailroad.connect(addr1).buyPermit(1111, 1, { value: 50000 });
+      await expect(
+        hardhatRailroad.connect(addr1).purchaseTicketWithCard(0,{ value: 5000 })
+      ).to.emit(hardhatRailroad, "TicketSold").withArgs(addr1.address, 1, 2500);
+    });
+
   });
 });
