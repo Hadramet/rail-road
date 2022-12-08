@@ -45,7 +45,7 @@ export default function Wallet() {
   });
 
   async function setForSale(tokenId: number, price: number) {
-    if(price <= 0 ) return ;
+    if (price <= 0) return;
     const config = await prepareWriteContract({
       ...railroadContractConfig,
       functionName: "setForSale",
@@ -102,8 +102,8 @@ export default function Wallet() {
 
   useEffect(() => {
     if (data) {
-        getPermits(parseInt(data.toString()));
-        setUpdated(true);
+      getPermits(parseInt(data.toString()));
+      setUpdated(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, data, updated]);
@@ -148,10 +148,18 @@ export default function Wallet() {
                           sx={{ mt: 1 }}
                           disabled={permit.forsale}
                           onClick={() => {
-                            const price: number = document.getElementsByName(
+                            const elements = document.getElementsByName(
                               `${permit.tokenId}-input`
-                            )[0]?.value as number;
-                            setForSale(permit.tokenId, price);
+                            ) as NodeListOf<HTMLInputElement>;
+
+                            // Check if the elements exist
+                            if (elements.length > 0) {
+                              // Access the first element in the array
+                              const item = elements[0];
+                              const price = parseInt(item.value, 10);
+
+                              setForSale(permit.tokenId, price);
+                            }
                           }}
                           variant="outlined"
                         >

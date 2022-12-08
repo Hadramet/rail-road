@@ -152,10 +152,10 @@ const AddCardFormView = (
 export const AddCardForm = withFormik<AddCardProps, AddCardFormValues>({
   mapPropsToValues: (props: AddCardProps) => {
     return {
-      cardId: props.initialId || undefined,
-      cardPrice: props.initialPrice || undefined,
-      cardDiscount: props.initialDiscount || undefined,
-      cardTotalSellable: props.initialTotal || undefined,
+      cardId: props.initialId ,
+      cardPrice: props.initialPrice,
+      cardDiscount: props.initialDiscount ,
+      cardTotalSellable: props.initialTotal,
     };
   },
   validate: (values: AddCardFormValues) => {
