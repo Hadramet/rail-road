@@ -17,7 +17,7 @@ In the terminal, go to the smart contract folder from the root:
 
 ```
 cd smart-contra
-npx hardhat node
+cd yarn && npx hardhat node
 ```
 
 This will start the local network on **'127.0.0.1:8545'**.
@@ -35,7 +35,7 @@ The frontend folder contains a [Next.js](https://nextjs.org/) app. To compile an
 
 ```
 cd frontend
-yarn build
+yarn && yarn build
 ```
 
 To start the app, run the following command:
@@ -56,7 +56,7 @@ You can run tests before deploying the app with the command:
 
 ```
 cd smart-contract
-yarn test
+yarn && yarn test
 ```
 
 ## Coverage (optional)
