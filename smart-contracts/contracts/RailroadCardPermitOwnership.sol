@@ -81,9 +81,9 @@ contract RailroadCardPermitOwnership is
     /**
      * @notice This function allows a permit owner to sell their permit on the marketplace.
      * The function checks that the permit is valid, the marketplace is the approved
-     * contract for the permit, and that the passed price is valid. 
+     * contract for the permit, and that the passed price is valid.
      * @dev Transfers ownership of the permit to the marketplace contract, and emits
-     *  the "PermitPurchased" event with the new owner (the marketplace contract). 
+     *  the "PermitPurchased" event with the new owner (the marketplace contract).
      * @dev It also marks the permit for removal after sale.
      */
     function buyPermitToken(uint256 _tokenId) external payable {
@@ -109,11 +109,26 @@ contract RailroadCardPermitOwnership is
         mediator.updatePermitOwner(_tokenId, buyer);
     }
 
+    function getPermitForSale(
+        uint256 _tokenId
+    ) external view returns (uint256, uint256, uint256) {
+        require(_exists(_tokenId), "Token should be valid");
+        uint256 salePrice = getTokenSalePrice(_tokenId);
+        uint256 permitCard = _permitCardId(_tokenId);
+        uint256 permitDiscount = _getDiscount(permitCard);
+
+        return (permitCard, salePrice, permitDiscount);
+    }
+
+    function getTokenForSale() external view returns (uint256[] memory) {
+        return _allTokenForSale;
+    }
+
     /**
-     * @dev This function sets a permit token for sale by the owner of the token. 
-     * It requires the token ID and the sale price to be passed as arguments. 
+     * @dev This function sets a permit token for sale by the owner of the token.
+     * It requires the token ID and the sale price to be passed as arguments.
      * @dev The function first checks if the token exists and the sale price is greater than 0.
-     * It then approves the contract as the operator of the token and sets the sale price of the 
+     * It then approves the contract as the operator of the token and sets the sale price of the
      * token. The token ID is then added to the list of tokens for sale. An Approval event
      *  is emitted with the owner, contract address, and token ID as arguments.
      */
@@ -145,7 +160,6 @@ contract RailroadCardPermitOwnership is
         return _isTokenForSale(_tokenId);
     }
 
-
     function removeTokenForSale(uint256 _tokenId) public onlyOwnerOf(_tokenId) {
         require(_exists(_tokenId));
         require(_isTokenForSale(_tokenId));
@@ -153,11 +167,12 @@ contract RailroadCardPermitOwnership is
         delete _tokenForSalePrice[_tokenId];
         delete _allTokenForSale[_tokenId];
     }
-/**
- * @notice This function is used to remove the token from the 
- * list of tokens for sale after it has been sold.
- * @param _tokenId The ID of the token to be removed.
-*/
+
+    /**
+     * @notice This function is used to remove the token from the
+     * list of tokens for sale after it has been sold.
+     * @param _tokenId The ID of the token to be removed.
+     */
     function removeTokenAfterSale(
         uint256 _tokenId
     ) public override(IRailroadMaketPlace) {
@@ -168,8 +183,9 @@ contract RailroadCardPermitOwnership is
         require(_exists(_tokenId));
         require(_isTokenForSale(_tokenId));
 
+        _allTokenForSale[_tokenId] = _allTokenForSale[_allTokenForSale.length - 1] ;
+        _allTokenForSale.pop();
         delete _tokenForSalePrice[_tokenId];
-        delete _allTokenForSale[_tokenId];
     }
 
     function updatePermitOwner(

@@ -11,6 +11,7 @@ import {RailRoadRessources as Res} from "./RailroadLib.sol";
  * @notice It controls the operation of setting a new withdrawal address.
  */
 contract Railroad is RailroadCardPermitOwnership, RailRoadTicket {
+    
     constructor() RailroadCardPermitOwnership("RailRoad", "RRO") {
         withdrawalAddress = msg.sender;
     }

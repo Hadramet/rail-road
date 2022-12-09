@@ -7,3 +7,10 @@ export interface CardInfos {
   totalSellable: number;
   uri: string;
 }
+
+export interface CardResale{
+  id: number;
+  price: number;
+  cardId: number;
+  discount: number;
+}

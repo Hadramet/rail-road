@@ -150,6 +150,32 @@ describe("Railroad contract", () => {
       );
     });
 
+    it("Get permit for sale infos", async () => {
+      const { hardhatRailroad, addr1 } = await loadFixture(deployFixture);
+      await hardhatRailroad.addCard(1111, 50000, 1050, 1);
+      await hardhatRailroad.connect(addr1).buyPermit(1111, 1, { value: 50000 });
+      await hardhatRailroad.connect(addr1).setForSale(0, 60000);
+      const permitForSaleInfos = await hardhatRailroad
+        .connect(addr1)
+        .getPermitForSale(0);
+
+      expect(permitForSaleInfos[0]).to.eq(1111);
+      expect(permitForSaleInfos[1]).to.eq(60000);
+      expect(permitForSaleInfos[2]).to.eq(1050);
+    });
+
+    it("Get all permit for sale", async () => {
+      const { hardhatRailroad, addr1 } = await loadFixture(deployFixture);
+      await hardhatRailroad.addCard(1111, 50000, 1050, 1);
+      await hardhatRailroad.connect(addr1).buyPermit(1111, 1, { value: 50000 });
+      await hardhatRailroad.connect(addr1).setForSale(0, 60000);
+      const tokenForSale = await hardhatRailroad
+        .connect(addr1)
+        .getTokenForSale();
+
+      expect(tokenForSale[0]).to.eq(0);
+    });
+
     it("Another user can get token for sale price", async () => {
       const { hardhatRailroad, addr1, addr2 } = await loadFixture(
         deployFixture
@@ -198,7 +224,6 @@ describe("Railroad contract", () => {
   });
 
   describe("Ticket selling", () => {
-    
     it("Purchase ticket require valid ticket", async () => {
       const { hardhatRailroad, addr1 } = await loadFixture(deployFixture);
       await expect(
@@ -207,13 +232,16 @@ describe("Railroad contract", () => {
     });
 
     it("Purchase ticket with a card", async () => {
-      const { hardhatRailroad, addr1 } = await loadFixture(deployFixture);     
+      const { hardhatRailroad, addr1 } = await loadFixture(deployFixture);
       await hardhatRailroad.addCard(1111, 50000, 50, 1);
       await hardhatRailroad.connect(addr1).buyPermit(1111, 1, { value: 50000 });
       await expect(
-        hardhatRailroad.connect(addr1).purchaseTicketWithCard(0,{ value: 5000 })
-      ).to.emit(hardhatRailroad, "TicketSold").withArgs(addr1.address, 1, 2500);
+        hardhatRailroad
+          .connect(addr1)
+          .purchaseTicketWithCard(0, { value: 5000 })
+      )
+        .to.emit(hardhatRailroad, "TicketSold")
+        .withArgs(addr1.address, 1, 2500);
     });
-
   });
 });
