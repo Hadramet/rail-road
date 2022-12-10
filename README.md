@@ -3,6 +3,10 @@
 
 This project consists of two parts: a smart contract folder and a frontend folder.
 
+## Prerequisis
+- NodeJs : 18.2
+- Yarn : for the commands
+
 ## Smart contract
 
 The smart contract folder contains all the contracts for the app. In order to use it, you need to have [Node.js 18](https://nodejs.org/en/download/) installed on your system. We recommend using [nvm](https://github.com/nvm-sh/nvm) to manage your Node versions.
@@ -12,8 +16,8 @@ Once you have Node.js 18 installed, run the following command to init a local ha
 In the terminal, go to the smart contract folder from the root:
 
 ```
-cd smart-
-npx hardhat node
+cd smart-contracts
+yarn && npx hardhat node
 ```
 
 This will start the local network on **'127.0.0.1:8545'**.
@@ -31,7 +35,7 @@ The frontend folder contains a [Next.js](https://nextjs.org/) app. To compile an
 
 ```
 cd frontend
-yarn build
+yarn && yarn build
 ```
 
 To start the app, run the following command:
@@ -52,7 +56,7 @@ You can run tests before deploying the app with the command:
 
 ```
 cd smart-contract
-yarn test
+yarn && yarn test
 ```
 
 ## Coverage (optional)
