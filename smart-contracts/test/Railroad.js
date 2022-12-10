@@ -7,10 +7,27 @@ const {
 describe("Railroad contract", () => {
   const deployFixture = async () => {
     const Railroad = await ethers.getContractFactory("Railroad");
+    const RailroadTicket = await ethers.getContractFactory("RailRoadTicket");
+
     const [owner, addr1, addr2] = await ethers.getSigners();
+
     const hardhatRailroad = await Railroad.deploy();
     await hardhatRailroad.deployed();
-    return { Railroad, hardhatRailroad, owner, addr1, addr2 };
+
+    const hardhatRailroadTicket = await RailroadTicket.deploy(
+      hardhatRailroad.address
+    );
+    await hardhatRailroadTicket.deployed();
+
+    return {
+      Railroad,
+      hardhatRailroad,
+      RailroadTicket,
+      hardhatRailroadTicket,
+      owner,
+      addr1,
+      addr2,
+    };
   };
 
   describe("Deployment", () => {
@@ -225,23 +242,79 @@ describe("Railroad contract", () => {
 
   describe("Ticket selling", () => {
     it("Purchase ticket require valid ticket", async () => {
-      const { hardhatRailroad, addr1 } = await loadFixture(deployFixture);
+      const { hardhatRailroadTicket, addr1 } = await loadFixture(deployFixture);
       await expect(
-        hardhatRailroad.connect(addr1).purchaseTicket({ value: 50000 })
-      ).to.emit(hardhatRailroad, "TicketSold");
+        hardhatRailroadTicket.connect(addr1).purchaseTicket(1, { value: 50000 })
+      ).to.emit(hardhatRailroadTicket, "TicketSold");
     });
 
     it("Purchase ticket with a card", async () => {
-      const { hardhatRailroad, addr1 } = await loadFixture(deployFixture);
+      const { hardhatRailroad, hardhatRailroadTicket, addr1 } =
+        await loadFixture(deployFixture);
       await hardhatRailroad.addCard(1111, 50000, 50, 1);
       await hardhatRailroad.connect(addr1).buyPermit(1111, 1, { value: 50000 });
       await expect(
-        hardhatRailroad
+        hardhatRailroadTicket
           .connect(addr1)
-          .purchaseTicketWithCard(0, { value: 5000 })
+          .purchaseTicketWithCard(0, 1, { value: 5000 })
       )
-        .to.emit(hardhatRailroad, "TicketSold")
-        .withArgs(addr1.address, 1, 2500);
+        .to.emit(hardhatRailroadTicket, "TicketSold")
+        .withArgs(addr1.address, 0, 2500);
+    });
+
+    it("Purchase ticket automatically set the max discound", async () => {
+      const { hardhatRailroad, hardhatRailroadTicket, addr1 } =
+        await loadFixture(deployFixture);
+      await hardhatRailroad.addCard(1111, 1000, 1, 1);
+      await hardhatRailroad.addCard(1112, 150000, 10, 1);
+      await hardhatRailroad.addCard(1113, 200000, 20, 1);
+      await hardhatRailroad.addCard(1114, 300000, 50, 1);
+      await hardhatRailroad.connect(addr1).buyPermit(1111, 1, { value: 1000 });
+      await hardhatRailroad
+        .connect(addr1)
+        .buyPermit(1112, 1, { value: 150000 });
+      await hardhatRailroad
+        .connect(addr1)
+        .buyPermit(1113, 1, { value: 200000 });
+      await hardhatRailroad
+        .connect(addr1)
+        .buyPermit(1114, 1, { value: 300000 });
+
+      await expect(
+        hardhatRailroadTicket.connect(addr1).purchaseTicket(1, { value: 5000 })
+      )
+        .to.emit(hardhatRailroadTicket, "TicketSold")
+        .withArgs(addr1.address, 0, 2500);
+
+      await expect(
+        hardhatRailroadTicket.connect(addr1).purchaseTicket(2, { value: 6000 })
+      )
+        .to.emit(hardhatRailroadTicket, "TicketSold")
+        .withArgs(addr1.address, 1, 3000);
+
+      await expect(
+        hardhatRailroadTicket.connect(addr1).purchaseTicket(3, { value: 8000 })
+      )
+        .to.emit(hardhatRailroadTicket, "TicketSold")
+        .withArgs(addr1.address, 2, 4000);
+    });
+
+    it("Ticket infos", async () => {
+      const { hardhatRailroad, hardhatRailroadTicket, addr1 } =
+        await loadFixture(deployFixture);
+      await hardhatRailroad.addCard(1111, 50000, 50, 1);
+      await hardhatRailroad.connect(addr1).buyPermit(1111, 1, { value: 50000 });
+      await hardhatRailroadTicket
+        .connect(addr1)
+        .purchaseTicketWithCard(0, 1, { value: 5000 });
+      const infos = await hardhatRailroadTicket
+        .connect(addr1)
+        .getTicketInfos(0);
+
+      expect(infos[0]).to.eq(2500); // price
+      expect(infos[2]).to.eq(1); // type
+      expect(infos[3]).to.eq(addr1.address); // buyer
+
     });
   });
 });

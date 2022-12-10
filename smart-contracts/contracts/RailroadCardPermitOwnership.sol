@@ -147,6 +147,22 @@ contract RailroadCardPermitOwnership is
         emit Approval(owner, address(this), _tokenId);
     }
 
+    function getOwnerMaxDiscount(address _owner) public view returns (uint256) {
+        require(_owner != address(0));
+        uint256 _maxDiscount = 0;
+        uint256 _balance = balanceOf(_owner);
+
+        for (uint256 i = 0 ; i < _balance; i++) {
+            uint256 _token = tokenOfOwnerByIndex(_owner, i);
+            uint256 _cardId = _permitCardId(_token);
+            uint256 _discount = _getDiscount(_cardId);
+
+            if(_discount > _maxDiscount) _maxDiscount = _discount;
+        }
+
+        return _maxDiscount;
+    }
+
     // This function returns the sale price of a token
     function getTokenSalePrice(uint256 _tokenId) public view returns (uint256) {
         require(_exists(_tokenId));
@@ -183,7 +199,9 @@ contract RailroadCardPermitOwnership is
         require(_exists(_tokenId));
         require(_isTokenForSale(_tokenId));
 
-        _allTokenForSale[_tokenId] = _allTokenForSale[_allTokenForSale.length - 1] ;
+        _allTokenForSale[_tokenId] = _allTokenForSale[
+            _allTokenForSale.length - 1
+        ];
         _allTokenForSale.pop();
         delete _tokenForSalePrice[_tokenId];
     }

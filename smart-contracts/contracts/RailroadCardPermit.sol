@@ -112,7 +112,7 @@ contract RailroadCardPermit is RailroadCard {
         return _permitId;
     }
 
-    function _permitCardId(uint256 _permitId) internal view returns (uint256) {
+    function _permitCardId(uint256 _permitId) public view returns (uint256) {
         require(_isValidPermit(_permitId));
         return permits[_permitId].cardId;
     }

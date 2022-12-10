@@ -31,13 +31,17 @@ async function main() {
   const Railroad = await ethers.getContractFactory("Railroad");
   const rail = await Railroad.deploy();
   await rail.deployed();
-
   console.log("Railroad address:", rail.address);
 
-  saveFrontendFiles(rail);
+  const RailroadTicket = await ethers.getContractFactory("RailRoadTicket");
+  const railT = await RailroadTicket.deploy(rail.address);
+  await railT.deployed();
+  console.log("Railroad Ticket address:", railT.address);
+
+  saveFrontendFiles(rail, railT);
 }
 
-function saveFrontendFiles(railroad) {
+function saveFrontendFiles(railroad, railroadTicket) {
   const fs = require("fs");
   console.log("Transfering contract to frontend folder");
   const contractsDir = path.join(
@@ -55,14 +59,26 @@ function saveFrontendFiles(railroad) {
 
   fs.writeFileSync(
     path.join(contractsDir, "contract-address.json"),
-    JSON.stringify({ Railroad: railroad.address }, undefined, 2)
+    JSON.stringify(
+      {
+        Railroad: railroad.address,
+        RailroadTicket: railroadTicket.address,
+      },
+      undefined,
+      2
+    )
   );
 
   const RailroadArtifact = artifacts.readArtifactSync("Railroad");
+  const RailroadTicketArtifact = artifacts.readArtifactSync("RailRoadTicket");
 
   fs.writeFileSync(
     path.join(contractsDir, "Railroad.json"),
     JSON.stringify(RailroadArtifact, null, 2)
+  );
+  fs.writeFileSync(
+    path.join(contractsDir, "RailroadTicket.json"),
+    JSON.stringify(RailroadTicketArtifact, null, 2)
   );
 }
 

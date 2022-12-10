@@ -134,7 +134,7 @@ contract RailroadCard is RailroadBase {
         return cards[_cardId].price;
     }
 
-    function _getDiscount(uint256 _cardId) internal view returns (uint256) {
+    function _getDiscount(uint256 _cardId) public view returns (uint256) {
         require(_isCardExist(_cardId));
         return cards[_cardId].discount;
     }
