@@ -1,38 +1,40 @@
-import {
-  Box,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  CardMedia,
-  Link,
-  Paper,
-  Theme,
-  Typography,
-} from "@mui/material";
+import { Box } from "@mui/material";
 import { Container } from "@mui/system";
 import { AddCardView } from "../components/AddCardView";
-import { useAccount, useContractRead, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
-import RailroadArtifact from "../contracts/Railroad.json";
-import RailroadTicketArtifact from "../contracts/RailroadTicket.json";
-import contractAddress from "../contracts/contract-address.json";
+import {
+  useAccount,
+  useConnect,
+  useContractRead,
+  useContractWrite,
+  usePrepareContractWrite,
+  useWaitForTransaction,
+} from "wagmi";
 import { useEffect, useState } from "react";
 import { BigNumber } from "ethers";
 import { useDebounce } from "../utils/useDebounce";
 import toast from "react-hot-toast";
-
-const railroadTicketContractConfig = {
-  address: contractAddress.RailroadTicket,
-  abi: RailroadTicketArtifact.abi,
-};
+import {
+  railroadContractConfig,
+  railroadTicketContractConfig,
+} from "../utils/contractConfig";
+import { TicketComponent } from "../components/TicketComponent";
 
 const TransportTickets = () => {
-
+  const { address, isConnected } = useAccount();
+  const { error } = useConnect();
   const [price, setPrice] = useState<number>();
   const [type, setType] = useState<number>();
+  const [discount, setDiscount] = useState<string>();
 
   const debouncedPrice = useDebounce(price, 500);
-  const debounceType = useDebounce(type,500);
+  const debounceType = useDebounce(type, 500);
+
+  const { data } = useContractRead({
+    ...railroadContractConfig,
+    functionName: "getOwnerMaxDiscount",
+    args: [address],
+    watch: true,
+  });
 
   const { config } = usePrepareContractWrite({
     ...railroadTicketContractConfig,
@@ -62,79 +64,61 @@ const TransportTickets = () => {
 
     setType(type);
     setPrice(price);
-    
+
     write?.();
   };
 
+  useEffect(() => {
+    if (data) {
+      setDiscount(data.toString());
+    }
+  }, [data]);
+
+  if (error) return <div>{error.message}</div>;
+  if (!isConnected)
+    return <div>You need to connect to a wallet via Metamask.</div>;
   return (
-    <Box>
-      <Card>
-        <CardMedia
-          component="img"
-          height="100"
-          image="ticket-image.jpg"
-          alt="ticket"
-        />
-        <CardContent>
-          <Typography variant="h6">BUS</Typography>
-          <Typography variant="h6">5000 WEI</Typography>
-        </CardContent>
-        <CardActions>
-          <Button
-            variant="contained"
-            disabled={isBuyingLoading}
-            onClick={() => buyTicket(1)}
-            color="primary"
-          >
-            Buy
-          </Button>
-        </CardActions>
-      </Card>
-      <Card>
-        <CardMedia
-          component="img"
-          height="100"
-          image="ticket-image.jpg"
-          alt="ticket"
-        />
-        <CardContent>
-          <Typography variant="h6">SUBWAY</Typography>
-          <Typography variant="h6">6000 WEI</Typography>
-        </CardContent>
-        <CardActions>
-          <Button
-            variant="contained"
-            disabled={isBuyingLoading}
-            onClick={() => buyTicket(2)}
-            color="primary"
-          >
-            Buy
-          </Button>
-        </CardActions>
-      </Card>
-      <Card>
-        <CardMedia
-          component="img"
-          height="100"
-          image="ticket-image.jpg"
-          alt="ticket"
-        />
-        <CardContent>
-          <Typography variant="h6">TRAIN</Typography>
-          <Typography variant="h6">5000 WEI</Typography>
-        </CardContent>
-        <CardActions>
-          <Button
-            variant="contained"
-            disabled={isBuyingLoading}
-            onClick={() => buyTicket(3)}
-            color="primary"
-          >
-            Buy
-          </Button>
-        </CardActions>
-      </Card>
-    </Box>
+    <div>
+      <TicketComponent
+        buy={buyTicket}
+        discount={discount || ""}
+        endTime="15:00"
+        from="republique"
+        to="la poterie"
+        price={5000}
+        startTime="14:00"
+        transportNum="C2"
+        type={1}
+        key="Bus1"
+        isBuyingLoading={isBuyingLoading}
+      />
+      <TicketComponent
+        buy={buyTicket}
+        discount={discount || undefined}
+        endTime="15:00"
+        from="clemenceau"
+        to="Ville-Jean"
+        price={20000}
+        startTime="14:00"
+        transportNum="b"
+        type={2}
+        key="Metro1"
+        isBuyingLoading={isBuyingLoading}
+      />
+      <TicketComponent
+        buy={buyTicket}
+        discount={discount || undefined}
+        endTime="19:00"
+        from="Paris"
+        to="Lyon"
+        price={6000000000}
+        startTime="13:00"
+        transportNum="8936"
+        type={3}
+        key="Train2"
+        isBuyingLoading={isBuyingLoading}
+      />
+    </div>
   );
 };
 
@@ -144,8 +128,7 @@ export default function Home() {
   const { address } = useAccount();
 
   const { data: owner } = useContractRead({
-    address: contractAddress.Railroad,
-    abi: RailroadArtifact.abi,
+    ...railroadContractConfig,
     functionName: "owner",
   });
 
