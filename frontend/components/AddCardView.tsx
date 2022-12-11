@@ -4,19 +4,17 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import RailroadArtifact from "../contracts/Railroad.json";
-import contractAddress from "../contracts/contract-address.json";
 import { useDebounce } from "../utils/useDebounce";
 import { AddCardFormValues } from "../interfaces/AddCardFormValues";
 import { AddCardForm } from "./AddCardForm";
+import { railroadContractConfig } from "../utils/contractConfig";
 
 export function AddCardView() {
   const [values, setValues] = useState<AddCardFormValues>();
   const debouncedValues = useDebounce(values, 500);
 
   const { config } = usePrepareContractWrite({
-    address: contractAddress.Railroad,
-    abi: RailroadArtifact.abi,
+    ...railroadContractConfig,
     functionName: "addCard",
     args: [
       debouncedValues?.cardId,

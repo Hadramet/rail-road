@@ -1,25 +1,22 @@
 import { Box, Typography, Grid } from "@mui/material";
 import { useContractRead } from "wagmi";
-import RailroadArtifact from "../contracts/Railroad.json";
-import contractAddress from "../contracts/contract-address.json";
 import { useEffect, useState } from "react";
 import { RailroadCardItem } from "./RailroadCardItem";
 import { CardResaleItem } from "./CardResaleItem";
+import { railroadContractConfig } from "../utils/contractConfig";
 
 export function CardListView() {
   const [cards, setCards] = useState<number[]>([]);
   const [tokens, setTokens] = useState<number[]>([]);
 
   const { data } = useContractRead({
-    address: contractAddress.Railroad,
-    abi: RailroadArtifact.abi,
+    ...railroadContractConfig,
     functionName: "getAllCardIds",
     watch: true,
   });
 
   const { data: usersPermitForsaleIds } = useContractRead({
-    address: contractAddress.Railroad,
-    abi: RailroadArtifact.abi,
+    ...railroadContractConfig,
     functionName: "getTokenForSale",
     watch: true,
   });

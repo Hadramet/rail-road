@@ -1,8 +1,5 @@
 import { useAccount, useContractRead } from "wagmi";
-import { readContract, prepareWriteContract, writeContract } from "@wagmi/core";
-import RailroadArtifact from "../contracts/Railroad.json";
-import RailroadTicketArtifact from "../contracts/RailroadTicket.json";
-import contractAddress from "../contracts/contract-address.json";
+import { prepareWriteContract, writeContract } from "@wagmi/core";
 import { BigNumber } from "ethers";
 import { useEffect, useState } from "react";
 import {
@@ -19,38 +16,15 @@ import {
   Typography,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import { formatDistanceToNow } from "date-fns";
-
-const expirationCountDown = (unixDate: number) => {
-  const expirationDate = new Date(unixDate * 1000);
-  let duration = formatDistanceToNow(expirationDate, { addSuffix: true });
-  return duration;
-};
-const railroadContractConfig = {
-  address: contractAddress.Railroad,
-  abi: RailroadArtifact.abi,
-};
-
-const railroadTicketContractConfig = {
-  address: contractAddress.RailroadTicket,
-  abi: RailroadTicketArtifact.abi,
-};
-
-type userPermit = {
-  tokenId: number;
-  cardId: number;
-  price: number;
-  issuedTime: number;
-  discount: number;
-  forsale: boolean;
-};
-
-type UserTicket = {
-  id: number;
-  price: number;
-  expiration: number;
-  type: number;
-};
+import { expirationCountDown } from "../utils/expirationCountDown";
+import { userPermit } from "../types/userPermit";
+import { UserTicket } from "../types/UserTicket";
+import { getTickets } from "../utils/getTickets";
+import { getPermits } from "../utils/getPermits";
+import {
+  railroadContractConfig,
+  railroadTicketContractConfig,
+} from "../utils/contractConfig";
 
 export default function Wallet() {
   const { address } = useAccount();
@@ -83,91 +57,28 @@ export default function Wallet() {
     setUpdated(false);
   }
 
-  const getTickets = async (balance: number) => {
-    let userTicket: UserTicket[] = [];
-    for (let index = 0; index < balance; index++) {
-      const tokenId = await readContract({
-        ...railroadTicketContractConfig,
-        functionName: "tokenOfOwnerByIndex",
-        args: [address, BigNumber.from(index)] as const,
-      });
-
-      if (!tokenId) continue;
-
-      const ticketInfos = await readContract({
-        ...railroadTicketContractConfig,
-        functionName: "getTicketInfos",
-        args: [BigNumber.from(tokenId)] as const,
-      });
-
-      if (!Array.isArray(ticketInfos)) continue;
-
-      const item: UserTicket = {
-        id: tokenId.toString() as unknown as number,
-        expiration: ticketInfos[1]?.toString() as number,
-        price: ticketInfos[0]?.toString() as number,
-        type: ticketInfos[2]?.toString() as number,
-      };
-      userTicket.push(item);
-    }
-    setTickets(userTicket);
-  };
-  async function getPermits(balance: number) {
-    let userPermits: userPermit[] = [];
-    for (let index = 0; index < balance; index++) {
-      const tokenByIndex = await readContract({
-        ...railroadContractConfig,
-        functionName: "tokenOfOwnerByIndex",
-        args: [address, BigNumber.from(index)] as const,
-      });
-
-      if (!tokenByIndex) continue;
-      const tokenId = tokenByIndex?.toString();
-      const permitInfos = await readContract({
-        ...railroadContractConfig,
-        functionName: "permitInfos",
-        args: [tokenId] as const,
-      }); // cardId,issuedTime,owner
-
-      if (!Array.isArray(permitInfos)) continue;
-      const cardId = permitInfos[0]?.toString() as number;
-      const permitCardInfos = await readContract({
-        ...railroadContractConfig,
-        functionName: "getInfos",
-        args: [cardId] as const,
-      }); // price, discount,  available, sold, total, uri
-
-      const isTokenForSale = await readContract({
-        ...railroadContractConfig,
-        functionName: "isTokenForSale",
-        args: [tokenId] as const,
-      }); // bool
-
-      if (!Array.isArray(permitCardInfos)) continue;
-      const permit: userPermit = {
-        cardId: cardId,
-        tokenId: parseInt(tokenId),
-        discount: permitCardInfos[1]?.toString() as number,
-        issuedTime: permitInfos[1]?.toString() as number,
-        price: permitCardInfos[0]?.toString() as number,
-        forsale: isTokenForSale as boolean,
-      };
-      userPermits.push(permit);
-    }
-    setPermits(userPermits);
-  }
-
   useEffect(() => {
     if (data) {
-      getPermits(parseInt(data.toString()));
-      setUpdated(true);
+      const fetchData = async () => {
+        const permits = await getPermits(parseInt(data.toString()), address);
+        setPermits(permits);
+        setUpdated(true);
+      };
+      fetchData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, data, updated]);
 
   useEffect(() => {
     if (ticketBalance) {
-      getTickets(parseInt(ticketBalance.toString()));
+      const fetchData = async () => {
+        const tickets = await getTickets(
+          parseInt(ticketBalance.toString()),
+          address
+        );
+        setTickets(tickets);
+      };
+      fetchData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticketBalance]);

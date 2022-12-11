@@ -19,9 +19,10 @@ const pages = [
   { name: "Market", route: "/market" },
   { name: "Wallet", route: "/wallet" },
 ];
+
 const Name = "RAILROAD";
 export function RailroadBar() {
-  const router = useRouter()
+  const router = useRouter();
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -83,7 +84,10 @@ export function RailroadBar() {
               }}
             >
               {pages.map((page, index) => (
-                <MenuItem key={index} onClick={(e)=>handleCloseNavMenu(e,page.route)}>
+                <MenuItem
+                  key={index}
+                  onClick={(e) => handleCloseNavMenu(e, page.route)}
+                >
                   <Typography textAlign="center">{page.name}</Typography>
                 </MenuItem>
               ))}
@@ -111,7 +115,7 @@ export function RailroadBar() {
             {pages.map((page, index) => (
               <Button
                 key={index}
-                onClick={(e)=>handleCloseNavMenu(e,page.route)}
+                onClick={(e) => handleCloseNavMenu(e, page.route)}
                 sx={{ my: 2, color: "white", display: "block" }}
               >
                 {page.name}

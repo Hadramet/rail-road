@@ -4,6 +4,8 @@ import {
   CardContent,
   Grid,
   Divider,
+  CardHeader,
+  CardActions,
 } from "@mui/material";
 import {
   useContractRead,
@@ -11,33 +13,30 @@ import {
   usePrepareContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import RailroadArtifact from "../contracts/Railroad.json";
-import contractAddress from "../contracts/contract-address.json";
 import { useEffect, useState } from "react";
 import { CardInfos } from "../interfaces/CardInfos";
 import { useDebounce } from "../utils/useDebounce";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import toast from "react-hot-toast";
-
-type ItemProps = {
-  cardId: number;
-};
+import { railroadContractConfig } from "../utils/contractConfig";
+import { ItemProps } from "../types/ItemProps";
 
 export function RailroadCardItem(props: ItemProps) {
   const [infos, setInfos] = useState<CardInfos>();
   const debouncedInfos = useDebounce(infos, 500);
 
   const { config } = usePrepareContractWrite({
-    address: contractAddress.Railroad,
-    abi: RailroadArtifact.abi,
+    ...railroadContractConfig,
     functionName: "buyPermit",
     args: [debouncedInfos?.id || 0, BigNumber.from(1)],
     overrides: {
       value: debouncedInfos?.price || 0,
     },
   });
+
   const { data: buyingData, write } = useContractWrite(config);
+
   const { isLoading: isBuyingLoading } = useWaitForTransaction({
     hash: buyingData?.hash,
     onSuccess(data) {
@@ -49,8 +48,7 @@ export function RailroadCardItem(props: ItemProps) {
   });
 
   const { data, isError, isLoading } = useContractRead({
-    address: contractAddress.Railroad,
-    abi: RailroadArtifact.abi,
+    ...railroadContractConfig,
     functionName: "getInfos",
     args: [BigNumber.from(props.cardId)],
     watch: true,
@@ -82,31 +80,37 @@ export function RailroadCardItem(props: ItemProps) {
   return (
     <Grid item>
       {" "}
-      <Card sx={{ display: "flex", m: 2, maxWidth: 300 }}>
-        <CardContent sx={{ flex: "1 0 auto" }}>
-          <Typography variant="h5">{`ID : ${infos?.id}`}</Typography>
-          <Typography variant="subtitle1" color="text.secondary">
-            {`Price : ${infos?.price}`}
-          </Typography>
-          <Typography variant="caption">
-            {`Discount : ${infos?.discount}`}
-          </Typography>
-          <Typography variant="caption">
-            {`Available : ${infos?.available}`}
-          </Typography>
-          <Typography variant="caption">{`Sold : ${infos?.sold}`}</Typography>
-          <Typography variant="caption">
-            {`Total : ${infos?.totalSellable}`}
-          </Typography>
-          <Divider light sx={{ m: 2}} />
-          <LoadingButton
-            loading={isBuyingLoading}
-            disabled={isBuyingLoading || infos?.available == 0}
-            onClick={() => write?.()}
-            variant="outlined"
-          >
-            BUY
-          </LoadingButton>
+      <Card sx={{ minWidth: 256, textAlign: "center", borderRadius: 5 }}>
+        <CardHeader title="Card" sx={{ textAlign: "center", spacing: 10 }} />
+        <Divider variant="middle" />
+        <CardContent>
+          <Typography variant="h4">{`${infos?.discount} %`}</Typography>
+          <div style={{ padding: "20px" }}>
+            <Typography align="center">{`${ethers.utils.formatEther(
+              BigNumber.from(infos?.price || 0)
+            )} ETH`}</Typography>
+            <Typography
+              align="center" variant="subtitle2"
+            >{`ID : ${infos?.id}`}</Typography>
+            <Typography align="center" variant="body2">
+              {`Available : ${infos?.available}`}
+            </Typography>
+            <Typography align="center" variant="body2">{`Sold : ${infos?.sold}`}</Typography>
+            <Typography align="center" variant="body2">
+              {`Total : ${infos?.totalSellable}`}
+            </Typography>
+          </div>
+          <Divider variant="middle" />
+          <CardActions sx={{ display: "flex", justifyContent: "space-around" }}>
+            <LoadingButton
+              loading={isBuyingLoading}
+              disabled={isBuyingLoading || infos?.available == 0}
+              onClick={() => write?.()}
+              variant="outlined"
+            >
+              BUY
+            </LoadingButton>
+          </CardActions>
         </CardContent>
       </Card>
     </Grid>

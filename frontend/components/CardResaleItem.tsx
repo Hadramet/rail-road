@@ -1,4 +1,12 @@
-import { Typography, Card, CardContent, Grid, Divider } from "@mui/material";
+import {
+  Typography,
+  Card,
+  CardContent,
+  Grid,
+  Divider,
+  CardHeader,
+  CardActions,
+} from "@mui/material";
 import {
   useContractRead,
   useContractWrite,
@@ -11,13 +19,9 @@ import { useEffect, useState } from "react";
 import { CardResale } from "../interfaces/CardInfos";
 import { useDebounce } from "../utils/useDebounce";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { BigNumber } from "ethers";
-import {
-  prepareWriteContract,
-  writeContract,
-  waitForTransaction,
-} from "@wagmi/core";
+import { BigNumber, ethers } from "ethers";
 import toast from "react-hot-toast";
+import { railroadContractConfig } from "../utils/contractConfig";
 
 type ItemProps = {
   tokenId: number;
@@ -28,8 +32,7 @@ export function CardResaleItem(props: ItemProps) {
   const debouncedInfos = useDebounce(infos, 500);
 
   const { config } = usePrepareContractWrite({
-    address: contractAddress.Railroad,
-    abi: RailroadArtifact.abi,
+    ...railroadContractConfig,
     functionName: "buyPermitToken",
     args: [debouncedInfos?.id || 0],
     overrides: {
@@ -81,22 +84,34 @@ export function CardResaleItem(props: ItemProps) {
   return (
     <Grid item>
       {" "}
-      <Card sx={{ display: "flex", m: 2, maxWidth: 300 }}>
-        <CardContent sx={{ flex: "1 0 auto" }}>
-          <Typography variant="h5">{`ID : ${infos?.id}`}</Typography>
-          <Typography variant="subtitle1" color="text.secondary">
-            {`Price : ${infos?.price}`}
-          </Typography>
-          <Typography variant="caption">
-            {`Discount : ${infos?.discount}`}
-          </Typography>
-          <Typography variant="caption">
-            {`CardId : ${infos?.cardId}`}
-          </Typography>
-          <Divider light sx={{ m: 2 }} />
-          <LoadingButton onClick={() => write?.()} variant="outlined">
-            BUY
-          </LoadingButton>
+      <Card sx={{ minWidth: 256, textAlign: "center", borderRadius: 5 }}>
+        <CardHeader title="Card" sx={{ textAlign: "center", spacing: 10 }} />
+        <Divider variant="middle" />
+        <CardContent>
+          <Typography variant="h4">{`${infos?.discount} %`}</Typography>
+          <div style={{ padding: "20px" }}>
+            <Typography align="center">{`${ethers.utils.formatEther(
+              BigNumber.from(infos?.price || 0)
+            )} ETH`}</Typography>
+            <Typography
+              align="center"
+              variant="subtitle2"
+            >{`ID : ${infos?.id}`}</Typography>
+            <Typography align="center" variant="subtitle2">
+              {`CardId : ${infos?.cardId}`}
+            </Typography>
+          </div>
+          <Divider variant="middle" />
+          <CardActions sx={{ display: "flex", justifyContent: "space-around" }}>
+            <LoadingButton
+              loading={isBuyingLoading}
+              disabled={isBuyingLoading}
+              onClick={() => write?.()}
+              variant="outlined"
+            >
+              BUY
+            </LoadingButton>
+          </CardActions>
         </CardContent>
       </Card>
     </Grid>
